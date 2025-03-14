@@ -2,7 +2,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#ifdef TRACY_ENABLE
+#include "TracyC.h"
+#endif
+
 int get_nb_neighbours(int square_x, int square_y){
+#ifdef TRACY_ENABLE
+    TracyCZoneS(ctx, 12, 1);
+#endif
     int nb = 0;
     for (int x_offset = -1; x_offset <= 1; x_offset++){
         for (int y_offset = -1; y_offset <= 1; y_offset++){
@@ -18,10 +25,16 @@ int get_nb_neighbours(int square_x, int square_y){
         }
     }
     //printf("nb_neighbours : %d\n", nb);
+#ifdef TRACY_ENABLE
+    TracyCZoneEnd(ctx);
+#endif
     return nb;
 }
 
 static void handle_square(int square_x, int square_y){
+#ifdef TRACY_ENABLE
+    TracyCZoneS(ctx, 11, 1);
+#endif
     int nb_neighbours = get_nb_neighbours(square_x, square_y);
     if (get_square(square_x, square_y)){
         if (nb_neighbours != 2 && nb_neighbours != 3){
@@ -32,13 +45,22 @@ static void handle_square(int square_x, int square_y){
             write_square(square_x, square_y, true);
         }
     }
+#ifdef TRACY_ENABLE
+    TracyCZoneEnd(ctx);
+#endif
 }
 
 void do_generation(){
+#ifdef TRACY_ENABLE
+    TracyCZoneS(ctx, 10, 1);
+#endif
     for (int x = 0; x < BOARD_SIZE; x++){
         for (int y = 0; y < BOARD_SIZE; y++){
             handle_square(x, y);
         }
     }
     swap_board();
+#ifdef TRACY_ENABLE
+    TracyCZoneEnd(ctx);
+#endif
 }

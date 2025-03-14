@@ -3,6 +3,10 @@
 #include <time.h>
 #include "raylib.h"
 
+#ifdef TRACY_ENABLE
+#include "TracyC.h"
+#endif
+
 static bool board[BOARD_SIZE * BOARD_SIZE];
 static bool board2[BOARD_SIZE * BOARD_SIZE];
 
@@ -33,10 +37,16 @@ void init_board(){
 }
 
 void swap_board(){
+#ifdef TRACY_ENABLE
+    TracyCZoneS(ctx, 11, 1);
+#endif
     bool* temp = current_board;
     current_board = next_board;
     next_board = temp;
     memcpy(next_board, current_board, BOARD_SIZE*BOARD_SIZE);
+#ifdef TRACY_ENABLE
+    TracyCZoneEnd(ctx);
+#endif
 }
 
 bool is_pos_valid(int x, int y){

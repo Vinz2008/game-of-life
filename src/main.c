@@ -35,7 +35,7 @@ static void printBoard(){
 }
 
 
-#define GEN_TIMEOUT 500
+#define GEN_TIMEOUT 1000
 
 int main(void)
 {
