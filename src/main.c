@@ -35,6 +35,8 @@ static void printBoard(){
 }
 
 
+#define GEN_TIMEOUT 500
+
 int main(void)
 {
     init_board();
@@ -53,10 +55,10 @@ int main(void)
 
     while (!WindowShouldClose())
     {
-        float delta = GetFrameTime() * 1000;
+        float delta = GetFrameTime() * GEN_TIMEOUT;
         gen_tick += delta;
-        if (gen_tick > 1000){
-            gen_tick -= 1000;
+        if (gen_tick > GEN_TIMEOUT){
+            gen_tick -= GEN_TIMEOUT;
             printf("gen %d\n", gen_nb);
             do_generation();
             gen_nb++;
