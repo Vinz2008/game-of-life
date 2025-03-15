@@ -4,6 +4,7 @@
 
 void init_board();
 void swap_board();
+const bool* get_current_board();
 void reset_board();
 bool get_square(int x, int y);
 void write_square(int x, int y, bool state);

@@ -5,12 +5,10 @@
 #include "board.h"
 #include "gen.h"
 #include "mouse.h"
+#include "save.h"
+#include "screen.h"
 
 // TODO : use haslife for better performance
-
-
-int screen_height = 1000;
-int screen_width = 1000;
 
 
 #define BG_BLACK (Color){ 10, 10, 10, 255 }
@@ -64,7 +62,7 @@ int main(void)
     blinker(BOARD_SIZE/2, BOARD_SIZE/2);
 
 
-    InitWindow(screen_height, screen_width, "raylib [core] example - basic window");
+    InitWindow(get_screen_height(), get_screen_width(), "raylib [core] example - basic window");
 
     Camera2D camera = { 0 };
     camera.zoom = 1.0f;
@@ -74,6 +72,7 @@ int main(void)
     float gen_tick = 0;
 
     int gen_nb = 1;
+
 
     while (!WindowShouldClose())
     {
@@ -87,14 +86,23 @@ int main(void)
         }
 
 
-        handle_mouse_move(&camera);
-
-        handle_mouse_zoom(&camera);
+        if (IsKeyDown(KEY_LEFT_CONTROL) && IsKeyDown(KEY_S)){
+            printf("ctrl s\n");
+            set_save_menu(true);
+        }
 
 
         BeginDrawing();
             ClearBackground(BG_BLACK);
             printBoard(camera);
+
+            if (is_in_save_menu()){
+                handle_save_menu();
+            } else {
+                handle_mouse_move(&camera);
+    
+                handle_mouse_zoom(&camera);
+            }
         EndDrawing();
     }
 

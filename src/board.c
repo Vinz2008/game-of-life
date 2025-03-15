@@ -36,6 +36,10 @@ void init_board(){
     next_board = board2;
 }
 
+const bool* get_current_board(){
+    return current_board;
+}
+
 void swap_board(){
 #ifdef TRACY_ENABLE
     TracyCZoneS(ctx, 11, 1);

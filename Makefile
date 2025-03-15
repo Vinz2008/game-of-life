@@ -4,7 +4,7 @@ LINKER = $(CC)
 
 TRACY ?= FALSE
 
-CFLAGS = -c -g -Wall
+CFLAGS = -c -g -Wall $(shell pkg-config --cflags zlib)
 
 #CFLAGS += -fsanitize=undefined
 #CFLAGS += -fsanitize=address
@@ -20,7 +20,7 @@ ifneq ($(TRACY), FALSE)
 	CFLAGS += -DTRACY_ENABLE=1 -DTRACY_NO_EXIT=1 -Iexternal/tracy/public/tracy
 endif
 
-LDFLAGS = -lraylib -lm -pthread -ldl -lrt -lX11
+LDFLAGS = -lraylib -lm -pthread -ldl -lrt -lX11 $(shell pkg-config --libs zlib)
 
 #LDFLAGS += -fsanitize=undefined
 #LDFLAGS += -fsanitize=address
