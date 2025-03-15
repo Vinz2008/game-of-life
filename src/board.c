@@ -40,12 +40,10 @@ void swap_board(){
 #ifdef TRACY_ENABLE
     TracyCZoneS(ctx, 11, 1);
 #endif
-
     bool* temp = current_board;
     current_board = next_board;
     next_board = temp;
     memcpy(next_board, current_board, BOARD_SIZE*BOARD_SIZE);
-
 #ifdef TRACY_ENABLE
     TracyCZoneEnd(ctx);
 #endif
