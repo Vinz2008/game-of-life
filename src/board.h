@@ -1,4 +1,4 @@
-#define BOARD_SIZE 100
+#define BOARD_SIZE 1000
 
 #include <stdbool.h>
 

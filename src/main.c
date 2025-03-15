@@ -1,9 +1,10 @@
 #include "raylib.h"
-#include "raymath.h"
-#include "rlgl.h"
+//#include "raymath.h"
+//#include "rlgl.h"
 #include <stdio.h>
 #include "board.h"
 #include "gen.h"
+#include "mouse.h"
 
 // TODO : use haslife for better performance
 
@@ -32,11 +33,11 @@ static void printBoard(Camera2D camera){
     
 
         for (int x = 0; x < BOARD_SIZE; x++){
-            DrawLine(x * 10, 0, x * 10, screen_height, GRAY);
+            DrawLine(x * 10, 0, x * 10, BOARD_SIZE * 10, GRAY);
         }
 
         for (int y = 0; y < BOARD_SIZE; y++){
-            DrawLine(0, y * 10, screen_width, y * 10, GRAY);
+            DrawLine(0, y * 10, BOARD_SIZE * 10, y * 10, GRAY);
         }
 
     EndMode2D();
@@ -59,7 +60,8 @@ int main(void)
     reset_board();
 
     //random_board();
-    blinker(screen_width/20, screen_height/20);
+    
+    blinker(BOARD_SIZE/2, BOARD_SIZE/2);
 
 
     InitWindow(screen_height, screen_width, "raylib [core] example - basic window");
@@ -85,32 +87,9 @@ int main(void)
         }
 
 
-        if (IsMouseButtonDown(MOUSE_BUTTON_LEFT)){
-            printf("mouse left\n");
-            Vector2 delta = GetMouseDelta();
-            delta = Vector2Scale(delta, -1.0f/camera.zoom);
-            camera.target = Vector2Add(camera.target, delta);
-        }
+        handle_mouse_move(&camera);
 
-        float wheel = GetMouseWheelMove();
-        if (wheel != 0){
-            // Get the world point that is under the mouse
-            Vector2 mouseWorldPos = GetScreenToWorld2D(GetMousePosition(), camera);
-
-            // Set the offset to where the mouse is
-            camera.offset = GetMousePosition();
-
-            // Set the target to match, so that the camera maps the world space point 
-            // under the cursor to the screen space point under the cursor at any zoom
-            camera.target = mouseWorldPos;
-
-            // Zoom increment
-            float scaleFactor = 1.0f + (0.25f*fabsf(wheel));
-            if (wheel < 0){ 
-                scaleFactor = 1.0f/scaleFactor; 
-            }
-            camera.zoom = Clamp(camera.zoom*scaleFactor, 0.125f, 64.0f);
-        }
+        handle_mouse_zoom(&camera);
 
 
         BeginDrawing();
