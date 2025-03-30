@@ -36,6 +36,13 @@ void init_board(){
     next_board = board2;
 }
 
+void set_board(bool* board_to_set){
+    const size_t board_size = BOARD_SIZE * BOARD_SIZE;
+    memcpy(board, board_to_set, board_size);
+    memcpy(board2, board_to_set, board_size);
+    init_board();
+}
+
 const bool* get_current_board(){
     return current_board;
 }

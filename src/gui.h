@@ -1,0 +1,1 @@
+#define BG_GRAY (Color){ 220, 220, 220, 255 }

@@ -6,6 +6,7 @@
 #include "gen.h"
 #include "mouse.h"
 #include "save.h"
+#include "load.h"
 #include "screen.h"
 
 // TODO : use haslife for better performance
@@ -76,19 +77,26 @@ int main(void)
 
     while (!WindowShouldClose())
     {
-        float delta = GetFrameTime() * GEN_TIMEOUT;
-        gen_tick += delta;
-        if (gen_tick > GEN_TIMEOUT){
-            gen_tick -= GEN_TIMEOUT;
-            printf("gen %d\n", gen_nb);
-            do_generation();
-            gen_nb++;
+        if (!is_in_save_menu() && !is_in_load_menu()){
+            float delta = GetFrameTime() * GEN_TIMEOUT;
+            gen_tick += delta;
+            if (gen_tick > GEN_TIMEOUT){
+                gen_tick -= GEN_TIMEOUT;
+                printf("gen %d\n", gen_nb);
+                do_generation();
+                gen_nb++;
+            }
         }
 
 
         if (IsKeyDown(KEY_LEFT_CONTROL) && IsKeyDown(KEY_S)){
             printf("ctrl s\n");
             set_save_menu(true);
+        }
+
+        if (IsKeyDown(KEY_LEFT_CONTROL) && IsKeyDown(KEY_L)){
+            printf("ctrl l\n");
+            set_load_menu(true);
         }
 
 
@@ -98,6 +106,8 @@ int main(void)
 
             if (is_in_save_menu()){
                 handle_save_menu();
+            } else if (is_in_load_menu()) {
+                handle_load_menu();
             } else {
                 handle_mouse_move(&camera);
     

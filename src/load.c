@@ -1,14 +1,13 @@
-#include "save.h"
+#include "load.h"
 #include <stdio.h>
-#include <string.h>
-#include <zlib.h>
 #include <stdlib.h>
+#include <zlib.h>
 #include "raylib.h"
+#include "gui.h"
 #include "screen.h"
 #include "board.h"
-#include "gui.h"
 
-static bool save_menu = false;
+static bool load_menu = false;
 
 static bool mouseOnText = false;
 
@@ -17,11 +16,19 @@ static bool mouseOnText = false;
 static int filename_buf_length = 0; 
 static char filename_buf[MAX_FILENAME_LENGTH];
 static int save_button_state = 0; // 0 : NORMAL, 1 : MOUSE HOVER, 2 : PRESSED (TODO : use an enum ?)
-//static bool is_save_button_pressed = false;
 
-static void save_board(const char* filename, bool zlib);
 
-void handle_save_menu(){
+bool is_in_load_menu(){
+    return load_menu;
+}
+
+void set_load_menu(bool state){
+    load_menu = state;
+}
+
+static const bool* load_board(const char* filename, bool zlib);
+
+void handle_load_menu(){
     const int screen_width = get_screen_width();
     const int screen_height = get_screen_height();
     int start_x = screen_width/2;
@@ -41,8 +48,8 @@ void handle_save_menu(){
 
         if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT)){
             //is_save_button_pressed = true;
-            save_board(filename_buf, true);
-            set_save_menu(false);
+            load_board(filename_buf, true);
+            set_load_menu(false);
             printf("save button pressed\n");
         }
     } else { 
@@ -92,7 +99,7 @@ void handle_save_menu(){
     Rectangle background_box = { 10, 10, screen_width-20, screen_height - 20 };
     DrawRectangleRec(background_box, BG_GRAY);
 
-    DrawText("SAVE", start_x, 140, 40, ORANGE);
+    DrawText("LOAD", start_x, 140, 40, ORANGE);
 
     // TODO : add blinker in text box (https://github.com/raysan5/raylib/blob/master/examples/text/text_input_box.c)
     DrawRectangleRec(text_box, LIGHTGRAY);
@@ -100,40 +107,31 @@ void handle_save_menu(){
 
 
     DrawRectangleRec(save_button_box, BLACK);
-    DrawText("Save", save_button_box.x + save_button_box.width/4, save_button_box.y+10, 30, WHITE);
+    DrawText("Load", save_button_box.x + save_button_box.width/4, save_button_box.y+10, 30, WHITE);
 }
 
-void set_save_menu(bool state){
-    save_menu = state;
-    if (state){
-        filename_buf_length = 0;
-        memset(filename_buf, 0, MAX_FILENAME_LENGTH);
-    }
-}
+static const bool* load_board(const char* filename, bool zlib){
+    FILE* f = fopen(filename, "r");
 
-bool is_in_save_menu(){
-    return save_menu;
-}
+    size_t current_board_size = BOARD_SIZE * BOARD_SIZE;
+    //fread(&current_board_size, sizeof(size_t), 1, f);
 
-static void save_board(const char* filename, bool zlib){
-    FILE* f = fopen(filename, "w");
-    const bool* current_board = get_current_board();
-    const size_t current_board_size = BOARD_SIZE * BOARD_SIZE;
-    const bool* buf = current_board;
-    size_t buf_size = current_board_size;
-    unsigned char* board_compressed = NULL;
+
+    bool* buf = malloc(current_board_size * sizeof(bool));
+
     if (zlib){
-        size_t zlib_upper_bound = compressBound(sizeof(bool) * current_board_size);
-        board_compressed = malloc(zlib_upper_bound);
-        compress(board_compressed, &buf_size, (unsigned char*)current_board, current_board_size);
-        buf = (bool*)board_compressed;
+        fseek(f, 0, SEEK_END);
+        size_t file_size = ftell(f);
+        rewind(f);
+        char* uncompressed_buf = malloc(file_size);
+        fread(uncompressed_buf, sizeof(char), file_size, f);
+        size_t destLen;
+        uncompress((Bytef*)buf, &destLen, (Bytef*)uncompressed_buf, file_size * sizeof(char));
+    } else {
+        fread(buf, sizeof(bool), current_board_size, f);
     }
-    // TODO : add the size of the board, but will need to implement boards of different size
-    //fwrite(&current_board_size, sizeof(size_t), 1, f);
-    fwrite(buf, sizeof(bool), buf_size, f);
 
-    if (board_compressed){
-        free(board_compressed);
-    }
     fclose(f);
+
+    return buf;
 }
