@@ -7,6 +7,7 @@
 #include "screen.h"
 #include "board.h"
 #include "gui.h"
+#include "error.h"
 
 static bool save_menu = false;
 
@@ -125,7 +126,13 @@ static void save_board(const char* filename, bool zlib){
     if (zlib){
         size_t zlib_upper_bound = compressBound(sizeof(bool) * current_board_size);
         board_compressed = malloc(zlib_upper_bound);
-        compress(board_compressed, &buf_size, (unsigned char*)current_board, current_board_size);
+        if (!board_compressed){
+            ERROR("error in memory allocation\n");
+        }
+        int res = compress(board_compressed, &buf_size, (unsigned char*)current_board, current_board_size);
+        if (res != Z_OK){
+            ERROR("error in zlib compress : %d\n", res);
+        }
         buf = (bool*)board_compressed;
     }
     // TODO : add the size of the board, but will need to implement boards of different size

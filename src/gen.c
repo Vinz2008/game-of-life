@@ -17,11 +17,8 @@ int get_nb_neighbours(int square_x, int square_y){
                 // exclude the same pos
                 int x = square_x + x_offset;
                 int y = square_y + y_offset;
-                if (!(square_x == x && square_y == y)){
-                    //printf("is_pos_valid(%d, %d) : %d\n", x, y, is_pos_valid(x, y));
-                    if (is_pos_valid(x, y)){
-                        nb += get_square(x, y);
-                    }      
+                if (!(square_x == x && square_y == y) && is_pos_valid(x, y)){
+                    nb += get_square(x, y);   
                 }
         }
     }

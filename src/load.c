@@ -6,6 +6,7 @@
 #include "gui.h"
 #include "screen.h"
 #include "board.h"
+#include "error.h"
 
 static bool load_menu = false;
 
@@ -112,21 +113,34 @@ void handle_load_menu(){
 
 static const bool* load_board(const char* filename, bool zlib){
     FILE* f = fopen(filename, "r");
+    if (!f){
+        ERROR("opening file failed\n");
+    }
 
     size_t current_board_size = BOARD_SIZE * BOARD_SIZE;
     //fread(&current_board_size, sizeof(size_t), 1, f);
 
 
     bool* buf = malloc(current_board_size * sizeof(bool));
+    if (!buf){
+        ERROR("error in memory allocation\n");
+    }
 
     if (zlib){
         fseek(f, 0, SEEK_END);
         size_t file_size = ftell(f);
         rewind(f);
         char* uncompressed_buf = malloc(file_size);
+        if (!uncompressed_buf){
+            ERROR("error in memory allocation\n");
+        }
         fread(uncompressed_buf, sizeof(char), file_size, f);
         size_t destLen;
-        uncompress((Bytef*)buf, &destLen, (Bytef*)uncompressed_buf, file_size * sizeof(char));
+        int res = uncompress((Bytef*)buf, &destLen, (Bytef*)uncompressed_buf, file_size * sizeof(char));
+        if (res != Z_OK){
+            ERROR("error in zlib uncompress : %d\n", res);
+        }
+        free(uncompressed_buf);
     } else {
         fread(buf, sizeof(bool), current_board_size, f);
     }

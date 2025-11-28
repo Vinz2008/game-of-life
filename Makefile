@@ -4,6 +4,8 @@ LINKER = $(CC)
 
 TRACY ?= FALSE
 
+SANITIZER ?= FALSE
+
 CFLAGS = -c -g -Wall $(shell pkg-config --cflags zlib)
 
 #CFLAGS += -fsanitize=undefined
@@ -22,8 +24,14 @@ endif
 
 LDFLAGS = -lraylib -lm -pthread -ldl -lrt -lX11 $(shell pkg-config --libs zlib)
 
-#LDFLAGS += -fsanitize=undefined
-#LDFLAGS += -fsanitize=address
+ifneq ($(SANITIZER),FALSE)
+	CFLAGS += -fsanitize=undefined,address
+	LDFLAGS += -fsanitize=undefined,address
+endif
+
+
+
+
 
 all: game_of_life
 
